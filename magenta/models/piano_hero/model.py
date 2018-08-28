@@ -18,6 +18,7 @@ from __future__ import division
 from __future__ import print_function
 
 import tensorflow.google as tf
+import sonnet as snt
 
 from magenta.models.piano_hero import util
 
@@ -188,6 +189,39 @@ def build_phero_model(feat_dict,
 
     out_dict["stp_emb_unconstrained"] = stp_emb_unconstrained
     latents.append(stp_emb_unconstrained)
+
+  # Quantized step embeddings with VQ-VAE
+  if cfg.stp_emb_vq:
+    with tf.variable_scope("stp_emb_vq"):
+      with tf.variable_scope("pre_vq"):
+        #pre_vq_encoding is tf.float32 of [batch_size, seq_len, embedding_dim]
+        pre_vq_encoding = tf.layers.dense(enc_stp, cfg.stp_emb_vq_embedding_dim)
+
+      with tf.variable_scope("quantizer"):
+        assert stp_varlen_mask is None
+        vq_vae = snt.nets.VectorQuantizer(
+            embedding_dim=cfg.stp_emb_vq_embedding_dim,
+            num_embeddings=cfg.stp_emb_vq_codebook_size,
+            commitment_cost=cfg.stp_emb_vq_commitment_cost)  # TODO: change
+        vq_vae_output = vq_vae(pre_vq_encoding, is_training=is_training)
+
+        stp_emb_vq_quantized = vq_vae_output["quantize"]
+        stp_emb_vq_discrete = tf.reshape(
+            tf.argmax(vq_vae_output["encodings"], axis=1, output_type=tf.int32),
+            [batch_size, seq_len])
+        stp_emb_vq_codebook = tf.transpose(vq_vae.embeddings)
+
+    out_dict["stp_emb_vq_quantized"] = stp_emb_vq_quantized
+    out_dict["stp_emb_vq_discrete"] = stp_emb_vq_discrete
+    out_dict["stp_emb_vq_loss"] = vq_vae_output["loss"]
+    out_dict["stp_emb_vq_codebook"] = stp_emb_vq_codebook
+    out_dict["stp_emb_vq_codebook_ppl"] = vq_vae_output["perplexity"]
+    latents.append(stp_emb_vq_quantized)
+
+    # This tensor retrieves continuous embeddings from codebook. It should
+    # *never* be used during training.
+    out_dict["stp_emb_vq_quantized_lookup"] = tf.nn.embedding_lookup(
+        stp_emb_vq_codebook, stp_emb_vq_discrete)
 
   # Integer-quantized step embeddings with straight-through
   if cfg.stp_emb_iq:

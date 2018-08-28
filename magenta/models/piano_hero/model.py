@@ -130,7 +130,7 @@ def build_phero_model(feat_dict,
   out_dict = {}
 
   # Parse features
-  pitches = demidify(feat_dict["midi_pitches"])  # TODO: embed pitches?
+  pitches = util.demidify(feat_dict["midi_pitches"])  # TODO: embed pitches?
   velocities = feat_dict["velocities"]
   pitches_scalar = ((tf.cast(pitches, tf.float32) / 87.) * 2.) - 1.
 
@@ -169,10 +169,9 @@ def build_phero_model(feat_dict,
     enc_feats = tf.concat(enc_feats, axis=2)
 
     with tf.variable_scope("encoder"):
-      enc_stp, enc_seq = SimpleLSTMEncoder(
+      enc_stp, enc_seq = simple_lstm_encoder(
           enc_feats,
           seq_lens,
-          batch_size,
           rnn_celltype=cfg.rnn_celltype,
           rnn_nlayers=cfg.rnn_nlayers,
           rnn_nunits=cfg.rnn_nunits,
@@ -190,45 +189,6 @@ def build_phero_model(feat_dict,
     out_dict["stp_emb_unconstrained"] = stp_emb_unconstrained
     latents.append(stp_emb_unconstrained)
 
-  # Quantized step embeddings with VQ-VAE
-  if cfg.stp_emb_vq:
-    with tf.variable_scope("stp_emb_vq"):
-      with tf.variable_scope("pre_vq"):
-        pre_vq_encoding = tf.layers.dense(enc_stp, cfg.stp_emb_vq_embedding_dim)
-
-      with tf.variable_scope("quantizer"):
-        if stp_varlen_mask is None:
-          vq_vae = snt.nets.VectorQuantizer(
-              embedding_dim=cfg.stp_emb_vq_embedding_dim,
-              num_embeddings=cfg.stp_emb_vq_codebook_size,
-              commitment_cost=cfg.stp_emb_vq_commitment_cost)  # TODO: change
-          vq_vae_output = vq_vae(pre_vq_encoding, is_training=is_training)
-        else:
-          vq_vae = VectorQuantizerMasked(
-              embedding_dim=cfg.stp_emb_vq_embedding_dim,
-              num_embeddings=cfg.stp_emb_vq_codebook_size,
-              commitment_cost=cfg.stp_emb_vq_commitment_cost)  # TODO: change
-          vq_vae_output = vq_vae(
-              pre_vq_encoding, stp_varlen_mask, is_training=is_training)
-
-        stp_emb_vq_quantized = vq_vae_output["quantize"]
-        stp_emb_vq_discrete = tf.reshape(
-            tf.argmax(vq_vae_output["encodings"], axis=1, output_type=tf.int32),
-            [batch_size, seq_len])
-        stp_emb_vq_codebook = tf.transpose(vq_vae.embeddings)
-
-    out_dict["stp_emb_vq_quantized"] = stp_emb_vq_quantized
-    out_dict["stp_emb_vq_discrete"] = stp_emb_vq_discrete
-    out_dict["stp_emb_vq_loss"] = vq_vae_output["loss"]
-    out_dict["stp_emb_vq_codebook"] = stp_emb_vq_codebook
-    out_dict["stp_emb_vq_codebook_ppl"] = vq_vae_output["perplexity"]
-    latents.append(stp_emb_vq_quantized)
-
-    # This tensor retrieves continuous embeddings from codebook. It should
-    # *never* be used during training.
-    out_dict["stp_emb_vq_quantized_lookup"] = tf.nn.embedding_lookup(
-        stp_emb_vq_codebook, stp_emb_vq_discrete)
-
   # Integer-quantized step embeddings with straight-through
   if cfg.stp_emb_iq:
     with tf.variable_scope("stp_emb_iq"):
@@ -236,7 +196,7 @@ def build_phero_model(feat_dict,
         #pre_iq_encoding is tf.float32 of [batch_size, seq_len]
         pre_iq_encoding = tf.layers.dense(enc_stp, 1)[:, :, 0]
 
-      def sander_round(x, n):
+      def integer_quantize_straight_through(x, n):
         eps = 1e-7
         s = float(n - 1)
         xp = tf.clip_by_value((x + 1) / 2.0, -eps, 1 + eps)
@@ -244,17 +204,9 @@ def build_phero_model(feat_dict,
         xppp = 2 * (xpp / s) - 1
         return xpp, x + tf.stop_gradient(xppp - x)
 
-      def chris_floor(x, n):
-        eps = 1e-1
-        xp = (x + 1) * (num_levels / 2.)
-        xc = tf.clip_by_value(xp, eps, num_levels - eps)
-        xpp = tf.floor(xc)
-        xppp = (xpp * (2. / (num_levels - 1))) - 1.
-        return xpp, x + tf.stop_gradient(xppp - x)
-
       with tf.variable_scope("quantizer"):
         # Pass rounded vals to decoder w/ straight-through estimator
-        stp_emb_iq_discrete_f, stp_emb_iq_discrete_rescaled = sander_round(
+        stp_emb_iq_discrete_f, stp_emb_iq_discrete_rescaled = integer_quantize_straight_through(
             pre_iq_encoding, cfg.stp_emb_iq_nbins)
         stp_emb_iq_discrete = tf.cast(stp_emb_iq_discrete_f + 1e-4, tf.int32)
         stp_emb_iq_discrete_f = tf.cast(stp_emb_iq_discrete, tf.float32)
@@ -432,7 +384,7 @@ def build_phero_model(feat_dict,
 
   # Decode
   with tf.variable_scope("decoder"):
-    dec_stp, dec_initial_state, dec_final_state = SimpleLSTMDecoder(
+    dec_stp, dec_initial_state, dec_final_state = simple_lstm_decoder(
         dec_feats,
         seq_lens,
         batch_size,
@@ -453,7 +405,7 @@ def build_phero_model(feat_dict,
     out_dict["dec_recons_scores"] = tf.nn.softmax(dec_recons_logits, axis=-1)
     out_dict["dec_recons_preds"] = tf.argmax(
         dec_recons_logits, output_type=tf.int32, axis=-1)
-    out_dict["dec_recons_midi_preds"] = remidify(out_dict["dec_recons_preds"])
+    out_dict["dec_recons_midi_preds"] = util.remidify(out_dict["dec_recons_preds"])
     out_dict["dec_recons_loss"] = dec_recons_loss
 
     if cfg.dec_pred_velocity:

@@ -17,6 +17,7 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+
 class BasePheroConfig(object):
   """Base class for model configurations."""
 
@@ -59,7 +60,7 @@ class BasePheroConfig(object):
     self.stp_emb_iq_contour_dy_scalar = False
     self.stp_emb_iq_contour_margin = 0.
     self.stp_emb_iq_contour_exp = 2
-    self.stp_emb_iq_contour_comp = 'product'
+    self.stp_emb_iq_contour_comp = "product"
     self.stp_emb_iq_deviate_exp = 2
 
     # Unconstrained parameters... just like VAE but passed directly (no prior)
@@ -98,7 +99,7 @@ class BasePheroConfig(object):
 class StpFree(BasePheroConfig):
 
   def __init__(self):
-    super(self.__class__, self).__init__()
+    super(StpFree, self).__init__()
 
     self.stp_emb_unconstrained = True
 
@@ -106,7 +107,7 @@ class StpFree(BasePheroConfig):
 class StpVq(BasePheroConfig):
 
   def __init__(self):
-    super(self.__class__, self).__init__()
+    super(StpVq, self).__init__()
 
     self.stp_emb_vq = True
 
@@ -114,7 +115,7 @@ class StpVq(BasePheroConfig):
 class StpIq(BasePheroConfig):
 
   def __init__(self):
-    super(self.__class__, self).__init__()
+    super(StpIq, self).__init__()
 
     self.stp_emb_iq = True
 
@@ -122,7 +123,7 @@ class StpIq(BasePheroConfig):
 class SeqFree(BasePheroConfig):
 
   def __init__(self):
-    super(self.__class__, self).__init__()
+    super(SeqFree, self).__init__()
 
     self.seq_emb_unconstrained = True
 
@@ -130,7 +131,7 @@ class SeqFree(BasePheroConfig):
 class SeqVae(BasePheroConfig):
 
   def __init__(self):
-    super(self.__class__, self).__init__()
+    super(SeqVae, self).__init__()
 
     self.seq_emb_vae = True
 
@@ -138,7 +139,7 @@ class SeqVae(BasePheroConfig):
 class LorFree(BasePheroConfig):
 
   def __init__(self):
-    super(self.__class__, self).__init__()
+    super(LorFree, self).__init__()
 
     self.lor_emb_unconstrained = True
 
@@ -146,7 +147,7 @@ class LorFree(BasePheroConfig):
 class StpVqSeqVae(BasePheroConfig):
 
   def __init__(self):
-    super(self.__class__, self).__init__()
+    super(StpVqSeqVae, self).__init__()
 
     self.stp_emb_vq = True
     self.seq_emb_vae = True
@@ -155,7 +156,7 @@ class StpVqSeqVae(BasePheroConfig):
 class StpVqSeqFree(BasePheroConfig):
 
   def __init__(self):
-    super(self.__class__, self).__init__()
+    super(StpVqSeqFree, self).__init__()
 
     self.stp_emb_vq = True
     self.seq_emb_unconstrained = True
@@ -164,7 +165,7 @@ class StpVqSeqFree(BasePheroConfig):
 class StpVqLorFree(BasePheroConfig):
 
   def __init__(self):
-    super(self.__class__, self).__init__()
+    super(StpVqLorFree, self).__init__()
 
     self.stp_emb_vq = True
     self.lor_emb_unconstrained = True
@@ -173,7 +174,7 @@ class StpVqLorFree(BasePheroConfig):
 class StpVqSeqFreeRand(BasePheroConfig):
 
   def __init__(self):
-    super(self.__class__, self).__init__()
+    super(StpVqSeqFreeRand, self).__init__()
 
     self.data_randomize_chord_order = True
     self.stp_emb_vq = True
@@ -183,7 +184,7 @@ class StpVqSeqFreeRand(BasePheroConfig):
 class StpVqSeqFreePredvelo(BasePheroConfig):
 
   def __init__(self):
-    super(self.__class__, self).__init__()
+    super(StpVqSeqFreePredvelo, self).__init__()
 
     self.stp_emb_vq = True
     self.seq_emb_unconstrained = True
@@ -193,7 +194,7 @@ class StpVqSeqFreePredvelo(BasePheroConfig):
 class Auto(BasePheroConfig):
 
   def __init__(self):
-    super(self.__class__, self).__init__()
+    super(Auto, self).__init__()
 
     self.dec_autoregressive = True
 
@@ -201,7 +202,7 @@ class Auto(BasePheroConfig):
 class StpVqAuto(BasePheroConfig):
 
   def __init__(self):
-    super(self.__class__, self).__init__()
+    super(StpVqAuto, self).__init__()
 
     self.stp_emb_vq = True
     self.dec_autoregressive = True
@@ -210,7 +211,7 @@ class StpVqAuto(BasePheroConfig):
 class StpIqAuto(BasePheroConfig):
 
   def __init__(self):
-    super(self.__class__, self).__init__()
+    super(StpIqAuto, self).__init__()
 
     self.stp_emb_iq = True
     self.dec_autoregressive = True
@@ -219,7 +220,7 @@ class StpIqAuto(BasePheroConfig):
 class SeqVaeAuto(BasePheroConfig):
 
   def __init__(self):
-    super(self.__class__, self).__init__()
+    super(SeqVaeAuto, self).__init__()
 
     self.seq_emb_vae = True
     self.dec_autoregressive = True
@@ -228,7 +229,7 @@ class SeqVaeAuto(BasePheroConfig):
 class LorFreeAuto(BasePheroConfig):
 
   def __init__(self):
-    super(self.__class__, self).__init__()
+    super(LorFreeAuto, self).__init__()
 
     self.lor_emb_unconstrained = True
     self.dec_autoregressive = True
@@ -237,7 +238,7 @@ class LorFreeAuto(BasePheroConfig):
 class StpVqSeqVaeAuto(BasePheroConfig):
 
   def __init__(self):
-    super(self.__class__, self).__init__()
+    super(StpVqSeqVaeAuto, self).__init__()
 
     self.stp_emb_vq = True
     self.seq_emb_vae = True
@@ -247,7 +248,7 @@ class StpVqSeqVaeAuto(BasePheroConfig):
 class StpVqSeqFreeAuto(BasePheroConfig):
 
   def __init__(self):
-    super(self.__class__, self).__init__()
+    super(StpVqSeqFreeAuto, self).__init__()
 
     self.stp_emb_vq = True
     self.seq_emb_unconstrained = True
@@ -257,7 +258,7 @@ class StpVqSeqFreeAuto(BasePheroConfig):
 class StpVqLorFreeAuto(BasePheroConfig):
 
   def __init__(self):
-    super(self.__class__, self).__init__()
+    super(StpVqLorFreeAuto, self).__init__()
 
     self.stp_emb_vq = True
     self.lor_emb_unconstrained = True
@@ -267,7 +268,7 @@ class StpVqLorFreeAuto(BasePheroConfig):
 class StpVqSeqFreeAutoRand(BasePheroConfig):
 
   def __init__(self):
-    super(self.__class__, self).__init__()
+    super(StpVqSeqFreeAutoRand, self).__init__()
 
     self.data_randomize_chord_order = True
     self.stp_emb_vq = True
@@ -278,7 +279,7 @@ class StpVqSeqFreeAutoRand(BasePheroConfig):
 class StpVqSeqFreeAutoVarlen(BasePheroConfig):
 
   def __init__(self):
-    super(self.__class__, self).__init__()
+    super(StpVqSeqFreeAutoVarlen, self).__init__()
 
     self.stp_emb_vq = True
     self.seq_emb_unconstrained = True
@@ -290,7 +291,7 @@ class StpVqSeqFreeAutoVarlen(BasePheroConfig):
 class StpVqSeqFreeAutoPredvelo(BasePheroConfig):
 
   def __init__(self):
-    super(self.__class__, self).__init__()
+    super(StpVqSeqFreeAutoPredvelo, self).__init__()
 
     self.stp_emb_vq = True
     self.seq_emb_unconstrained = True
@@ -301,7 +302,7 @@ class StpVqSeqFreeAutoPredvelo(BasePheroConfig):
 class StpVqSeqVaeAutoDt(BasePheroConfig):
 
   def __init__(self):
-    super(self.__class__, self).__init__()
+    super(StpVqSeqVaeAutoDt, self).__init__()
 
     self.stp_emb_vq = True
     self.seq_emb_vae = True
@@ -313,7 +314,7 @@ class StpVqSeqVaeAutoDt(BasePheroConfig):
 class StpVqSeqFreeAutoDt(BasePheroConfig):
 
   def __init__(self):
-    super(self.__class__, self).__init__()
+    super(StpVqSeqFreeAutoDt, self).__init__()
 
     self.stp_emb_vq = True
     self.seq_emb_unconstrained = True
@@ -325,7 +326,7 @@ class StpVqSeqFreeAutoDt(BasePheroConfig):
 class StpVqSeqVaeAutoVs(BasePheroConfig):
 
   def __init__(self):
-    super(self.__class__, self).__init__()
+    super(StpVqSeqVaeAutoVs, self).__init__()
 
     self.stp_emb_vq = True
     self.seq_emb_vae = True
@@ -337,7 +338,7 @@ class StpVqSeqVaeAutoVs(BasePheroConfig):
 class StpVqSeqFreeAutoVs(BasePheroConfig):
 
   def __init__(self):
-    super(self.__class__, self).__init__()
+    super(StpVqSeqFreeAutoVs, self).__init__()
 
     self.stp_emb_vq = True
     self.seq_emb_unconstrained = True
@@ -349,7 +350,7 @@ class StpVqSeqFreeAutoVs(BasePheroConfig):
 class StpVqSeqVaeAutoDtVs(BasePheroConfig):
 
   def __init__(self):
-    super(self.__class__, self).__init__()
+    super(StpVqSeqVaeAutoDtVs, self).__init__()
 
     self.stp_emb_vq = True
     self.seq_emb_vae = True
@@ -361,7 +362,7 @@ class StpVqSeqVaeAutoDtVs(BasePheroConfig):
 class StpVqSeqFreeAutoDtVs(BasePheroConfig):
 
   def __init__(self):
-    super(self.__class__, self).__init__()
+    super(StpVqSeqFreeAutoDtVs, self).__init__()
 
     self.stp_emb_vq = True
     self.seq_emb_unconstrained = True
@@ -407,7 +408,7 @@ def get_named_config(name, overrides=None):
 
   Args:
     name: Config name (see _named_configs)
-    overrides: Comma-separated list of overrides e.g. 'a=1,b=2'
+    overrides: Comma-separated list of overrides e.g. "a=1,b=2"
 
   Returns:
     cfg: The config object
@@ -415,14 +416,14 @@ def get_named_config(name, overrides=None):
   """
   cfg = _named_configs[name]
 
-  if overrides is not None and len(overrides.strip()) > 0:
+  if overrides is not None and len(overrides.strip()):
     overrides = [p.split("=") for p in overrides.split(",")]
     for key, val in overrides:
       val_type = type(getattr(cfg, key))
       if val_type == bool:
         setattr(cfg, key, val in ["True", "true", "t", "1"])
       elif val_type == list:
-        setattr(cfg, key, val.split(';'))
+        setattr(cfg, key, val.split(";"))
       else:
         setattr(cfg, key, val_type(val))
 

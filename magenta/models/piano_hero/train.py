@@ -21,21 +21,22 @@ import os
 
 import tensorflow as tf
 
-from magenta.models.piano_hero.loader import load_noteseqs
-from magenta.models.piano_hero.configs import get_named_config
-from magenta.models.piano_hero.model import build_phero_model
 from magenta.models.piano_hero import util
+from magenta.models.piano_hero.configs import get_named_config
+from magenta.models.piano_hero.loader import load_noteseqs
+from magenta.models.piano_hero.model import build_phero_model
 
 flags = tf.app.flags
 FLAGS = flags.FLAGS
 
 flags.DEFINE_string("dataset_fp", "./data/train*.tfrecord",
-    "Path to dataset containing TFRecords of NoteSequences.")
+                    "Path to dataset containing TFRecords of NoteSequences.")
 flags.DEFINE_string("train_dir", "", "The directory for this experiment")
 flags.DEFINE_string("model_cfg", "stp_iq_auto", "Hyperparameter configuration.")
 flags.DEFINE_string("model_cfg_overrides", "",
                     "E.g. rnn_nlayers=4,rnn_nunits=256")
-flags.DEFINE_integer("summary_every_nsecs", 60, "Summarize to Tensorboard every n seconds.")
+flags.DEFINE_integer("summary_every_nsecs", 60,
+                     "Summarize to Tensorboard every n seconds.")
 
 
 def main(unused_argv):
@@ -80,7 +81,7 @@ def main(unused_argv):
                       model_dict["stp_emb_vq_codebook_ppl"])
     tf.summary.image(
         "hero",
-        discrete_to_piano_roll(
+        util.discrete_to_piano_roll(
             model_dict["stp_emb_vq_discrete"],
             cfg.stp_emb_vq_codebook_size,
             dilation=max(1, 88 // cfg.stp_emb_vq_codebook_size)))
@@ -93,7 +94,7 @@ def main(unused_argv):
     tf.summary.scalar("iq_valid_p", model_dict["stp_emb_iq_valid_p"])
     tf.summary.image(
         "hero",
-        discrete_to_piano_roll(
+        util.discrete_to_piano_roll(
             model_dict["stp_emb_iq_discrete"],
             cfg.stp_emb_iq_nbins,
             dilation=max(1, 88 // cfg.stp_emb_iq_nbins)))
@@ -112,10 +113,12 @@ def main(unused_argv):
     tf.summary.scalar("loss_kl", model_dict["seq_emb_vae_kl"])
 
   # Summarize output
-  tf.summary.image("decoder_scores",
-                   util.discrete_to_piano_roll(model_dict["dec_recons_scores"], 88))
-  tf.summary.image("decoder_preds",
-                   util.discrete_to_piano_roll(model_dict["dec_recons_preds"], 88))
+  tf.summary.image(
+      "decoder_scores",
+      util.discrete_to_piano_roll(model_dict["dec_recons_scores"], 88))
+  tf.summary.image(
+      "decoder_preds",
+      util.discrete_to_piano_roll(model_dict["dec_recons_preds"], 88))
   if cfg.dec_pred_velocity:
     tf.summary.scalar("loss_recons_velocity",
                       model_dict["dec_recons_velocity_loss"])
@@ -141,12 +144,6 @@ def main(unused_argv):
   if cfg.dec_pred_velocity:
     loss += model_dict["dec_recons_velocity_loss"]
   tf.summary.scalar("loss", loss)
-
-  # Additional summaries
-  tf.summary.scalar("gpu_usage", gpu_usage())
-
-  # Print model analysis
-  model_analyzer.PrintModelAnalysis(tf.get_default_graph(), max_depth=5)
 
   # Construct optimizer
   opt = tf.train.AdamOptimizer(learning_rate=cfg.train_lr)

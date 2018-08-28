@@ -1,4 +1,4 @@
-# Copyright 2018 Google Inc. All Rights Reserved.
+# Copyright 2017 Google Inc. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -29,13 +29,16 @@ from magenta.models.piano_hero import util
 FLAGS = flags.FLAGS
 
 flags.DEFINE_string("dataset_fp", "./data/valid*.tfrecord",
-    "Path to dataset containing TFRecords of NoteSequences.")
+                    "Path to dataset containing TFRecords of NoteSequences.")
 flags.DEFINE_string("train_dir", "", "The directory for this experiment.")
 flags.DEFINE_string("eval_dir", "", "The directory for evaluation output.")
 flags.DEFINE_string("model_cfg", "stp_iq_auto", "Hyperparameter configuration.")
 flags.DEFINE_string("model_cfg_overrides", "",
                     "E.g. rnn_nlayers=4,rnn_nunits=256")
-flags.DEFINE_string("ckpt_fp", None, "If specified, only evaluate a single checkpoint. Otherwise, evaluate continuously.")
+flags.DEFINE_string(
+    "ckpt_fp", None,
+    "If specified, only evaluate a single checkpoint. Otherwise, evaluate continuously."
+)
 
 
 def main(unused_argv):
@@ -208,7 +211,7 @@ def main(unused_argv):
       latest_ckpt_fp = tf.train.latest_checkpoint(FLAGS.train_dir)
 
       if latest_ckpt_fp != ckpt_fp:
-        print "Eval: {}".format(latest_ckpt_fp)
+        print("Eval: {}".format(latest_ckpt_fp))
 
         with tf.Session() as sess:
           sess.run(tf.local_variables_initializer())
@@ -226,7 +229,7 @@ def main(unused_argv):
           saver.save(
               sess, os.path.join(FLAGS.eval_dir, "ckpt"), global_step=_step)
 
-        print "Done"
+        print("Done")
         ckpt_fp = latest_ckpt_fp
 
       time.sleep(1)
@@ -238,11 +241,11 @@ def main(unused_argv):
       _summaries = _eval_all(sess)
       _step = sess.run(step)
 
-      print "-" * 80
-      print "Ckpt: {}".format(FLAGS.ckpt_fp)
-      print "Step: {}".format(_step)
+      print("-" * 80)
+      print("Ckpt: {}".format(FLAGS.ckpt_fp))
+      print("Step: {}".format(_step))
       for n, l in sorted(_summaries.items(), key=lambda x: x[0]):
-        print "{}: {}".format(n, np.mean(l))
+        print("{}: {}".format(n, np.mean(l)))
 
 
 if __name__ == "__main__":

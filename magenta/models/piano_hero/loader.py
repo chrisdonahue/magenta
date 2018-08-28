@@ -61,11 +61,11 @@ def load_noteseqs(fp,
 
   # Pluck serialized note sequence out of tf.Example
   def _example_to_serialized_note_sequence(example_proto):
-    features = {'note_sequence': tf.FixedLenSequenceFeature([], tf.string, allow_missing=True)}
+    features = {"note_sequence": tf.FixedLenSequenceFeature([], tf.string, allow_missing=True)}
 
     example = tf.parse_single_example(example_proto, features)
 
-    return tf.reduce_join(example['note_sequence'], 0)
+    return tf.reduce_join(example["note_sequence"], 0)
 
   # Deserialize SSTable protos to NoteSequences
   def _str_to_tensor(note_sequence_str,
@@ -188,13 +188,13 @@ def load_noteseqs(fp,
 
   # Build return dict
   note_tensors = {
-      'pb_strs': note_sequence_strs,
-      'midi_pitches': note_pitches,
-      'velocities': note_velocities,
-      'delta_times': note_delta_times,
-      'delta_times_int': note_delta_times_int,
-      'start_times': note_start_times,
-      'end_times': note_end_times
+      "pb_strs": note_sequence_strs,
+      "midi_pitches": note_pitches,
+      "velocities": note_velocities,
+      "delta_times": note_delta_times,
+      "delta_times_int": note_delta_times_int,
+      "start_times": note_start_times,
+      "end_times": note_end_times
   }
 
   return note_tensors

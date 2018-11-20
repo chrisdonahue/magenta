@@ -16,8 +16,6 @@
 import collections
 import functools
 
-# internal imports
-
 import tensorflow as tf
 import magenta
 
@@ -206,6 +204,21 @@ default_configs = {
             id='performance_with_dynamics',
             description='Performance RNN with dynamics'),
         magenta.music.OneHotEventSequenceEncoderDecoder(
+            magenta.music.PerformanceOneHotEncoding(
+                num_velocity_bins=32)),
+        tf.contrib.training.HParams(
+            batch_size=64,
+            rnn_layer_sizes=[512, 512, 512],
+            dropout_keep_prob=1.0,
+            clip_norm=3,
+            learning_rate=0.001),
+        num_velocity_bins=32),
+
+    'performance_with_dynamics_compact': PerformanceRnnConfig(
+        magenta.protobuf.generator_pb2.GeneratorDetails(
+            id='performance_with_dynamics',
+            description='Performance RNN with dynamics (compact input)'),
+        magenta.music.OneHotIndexEventSequenceEncoderDecoder(
             magenta.music.PerformanceOneHotEncoding(
                 num_velocity_bins=32)),
         tf.contrib.training.HParams(

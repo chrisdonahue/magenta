@@ -4,7 +4,6 @@ from __future__ import division
 from __future__ import print_function
 import itertools as it
 import os
-# internal imports
 import numpy as np
 import six
 import tensorflow as tf
@@ -228,7 +227,7 @@ class Hyperparameters(object):
 
   @staticmethod
   def load(file_object):
-    params_dict = yaml.load(file_object)
+    params_dict = yaml.safe_load(file_object)
     hparams = Hyperparameters()
     hparams.update(params_dict)
     return hparams

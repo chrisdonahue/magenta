@@ -17,7 +17,6 @@ from __future__ import division
 
 import math
 
-# internal imports
 import numpy as np
 
 from magenta.music import encoder_decoder
@@ -378,6 +377,14 @@ class NotePerformanceEventSequenceEncoderDecoder(
   @property
   def duration_steps_segments(self):
     return self._duration_steps_segments
+
+  @property
+  def shift_steps_per_segment(self):
+    return self._shift_steps_per_segment
+
+  @property
+  def duration_steps_per_segment(self):
+    return self._duration_steps_per_segment
 
   @property
   def default_event_label(self):

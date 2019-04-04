@@ -75,18 +75,6 @@ def main(unused_argv):
         cfg.train_seq_len,
         is_training=True)
 
-  # Summarize quantized step embeddings
-  if cfg.stp_emb_vq:
-    tf.summary.scalar("codebook_perplexity",
-                      model_dict["stp_emb_vq_codebook_ppl"])
-    tf.summary.image(
-        "genie",
-        util.discrete_to_piano_roll(
-            model_dict["stp_emb_vq_discrete"],
-            cfg.stp_emb_vq_codebook_size,
-            dilation=max(1, 88 // cfg.stp_emb_vq_codebook_size)))
-    tf.summary.scalar("loss_vqvae", model_dict["stp_emb_vq_loss"])
-
   # Summarize integer-quantized step embeddings
   if cfg.stp_emb_iq:
     tf.summary.scalar("discrete_perplexity",
@@ -103,8 +91,6 @@ def main(unused_argv):
                       model_dict["stp_emb_iq_contour_penalty"])
     tf.summary.scalar("loss_iq_deviate",
                       model_dict["stp_emb_iq_deviate_penalty"])
-
-  if cfg.stp_emb_vq or cfg.stp_emb_iq:
     tf.summary.scalar("contour_violation", model_dict["contour_violation"])
     tf.summary.scalar("deviate_violation", model_dict["deviate_violation"])
 
@@ -131,8 +117,6 @@ def main(unused_argv):
 
   # Build hybrid loss
   loss = model_dict["dec_recons_loss"]
-  if cfg.stp_emb_vq and cfg.train_loss_vq_err_scalar > 0:
-    loss += (cfg.train_loss_vq_err_scalar * model_dict["stp_emb_vq_loss"])
   if cfg.stp_emb_iq and cfg.train_loss_iq_range_scalar > 0:
     loss += (
         cfg.train_loss_iq_range_scalar * model_dict["stp_emb_iq_range_penalty"])

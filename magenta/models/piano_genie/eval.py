@@ -75,7 +75,7 @@ def main(unused_argv):
 
   # Build gold model
   eval_gold = False
-  if cfg.stp_emb_vq or cfg.stp_emb_iq:
+  if cfg.stp_emb_iq:
     eval_gold = True
     with tf.variable_scope("phero_model", reuse=True):
       gold_feat_dict = {
@@ -94,8 +94,7 @@ def main(unused_argv):
           is_training=False,
           seq_varlens=gold_seq_varlens)
 
-    gold_encodings = gold_model_dict[
-        "stp_emb_vq_discrete" if cfg.stp_emb_vq else "stp_emb_iq_discrete"]
+    gold_encodings = gold_model_dict["stp_emb_iq_discrete"]
     gold_mask = tf.sequence_mask(
         gold_seq_varlens, maxlen=gold_seq_maxlen, dtype=tf.float32)
     gold_diff = tf.cast(gold_buttons, tf.float32) - tf.cast(
@@ -113,12 +112,6 @@ def main(unused_argv):
 
   summary_name_to_batch_tensor = {}
 
-  # Summarize quantized step embeddings
-  if cfg.stp_emb_vq:
-    summary_name_to_batch_tensor["codebook_perplexity"] = model_dict[
-        "stp_emb_vq_codebook_ppl"]
-    summary_name_to_batch_tensor["loss_vqvae"] = model_dict["stp_emb_vq_loss"]
-
   # Summarize integer-quantized step embeddings
   if cfg.stp_emb_iq:
     summary_name_to_batch_tensor["discrete_perplexity"] = model_dict[
@@ -131,8 +124,6 @@ def main(unused_argv):
         "stp_emb_iq_contour_penalty"]
     summary_name_to_batch_tensor["loss_iq_deviate"] = model_dict[
         "stp_emb_iq_deviate_penalty"]
-
-  if cfg.stp_emb_vq or cfg.stp_emb_iq:
     summary_name_to_batch_tensor["contour_violation"] = model_dict[
         "contour_violation"]
     summary_name_to_batch_tensor["deviate_violation"] = model_dict[
